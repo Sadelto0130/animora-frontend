@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getDay } from "../../libs/utils.js";
 import { Link } from "react-router-dom";
 import { useBlog } from "../../context/BlogContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const BlogPostCard = ({ contenido, autor }) => {
-
+  const {user} = useAuth()
+  const [liked, setLiked] = useState(false)
   let {
     created_at,
     title,
@@ -19,6 +21,13 @@ const BlogPostCard = ({ contenido, autor }) => {
 
   let fullName = `${name} ${last_name}`;
 
+  useEffect(() => {
+    if(!user) return;
+    if(liked_by[0]?.id === user?.id) {
+      setLiked(true)
+    }
+  }, [liked])
+
   return (
     <Link to={`/post/${slug}`} className="flex gap-8 items-center border-b border-[#a0a0a0] pb-5 mb-4">
       <div className="w-full">
@@ -28,6 +37,9 @@ const BlogPostCard = ({ contenido, autor }) => {
             {fullName} @{user_name}
           </p>
           <p className="min-w-fit">{getDay(created_at)}</p>
+          { (contenido.user_id === autor.id && contenido.draft) ?
+            <p className="ml-auto text-grey rounded-full bg-dark-grey p-1">Borrador</p> : ""
+          }
         </div>
 
         <h1 className="blog-title">{title}</h1>
@@ -40,7 +52,7 @@ const BlogPostCard = ({ contenido, autor }) => {
         <div className="flex gap-4 mt-7">
           <span className="btn-light py-1 px-4">{tags[0]}</span>
           <span className="ml-3 flex items-center gap-2 text-dark-grey">
-            <i className="fi fi-rr-heart text-xl"></i>
+            <i className={"fi " + (liked ? "fi-sr-heart text-red" : "fi-rr-heart ")}></i>
             {total_likes}
           </span>
         </div>

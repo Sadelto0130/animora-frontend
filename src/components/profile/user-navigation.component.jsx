@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const UserNavigationPanel = () => {
 
-  const {user, logout} = useAuth()
+  const {user, logoutUser} = useAuth()
 
   return (
     <AnimationWrapper
@@ -30,7 +30,7 @@ const UserNavigationPanel = () => {
 
         <button 
           className="text-left p-4 hover:bg-grey w-full pl-8 py-4"
-          onClick={logout}
+          onClick={logoutUser}
         >
           <h1 className="font-bold text-xl mg-1">Salir</h1>
           <p className="text-dark-grey">@{user.name}</p>

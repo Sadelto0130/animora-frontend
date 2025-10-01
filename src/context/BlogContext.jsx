@@ -12,7 +12,9 @@ import {
   getSearchPosts,
   getSearchUSers,
   getComments,
-  updatePostReadCount
+  updatePostReadCount,
+  likePost,
+  disLikePost,
 } from "../api/blog.api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -23,13 +25,12 @@ const BlogContext = createContext();
 export const useBlog = () => {
   const context = useContext(BlogContext);
   if (!context) throw new Error("useBlog debe estar dentro de BlogProvider");
-  return context; 
-}
+  return context;
+};
 
 export const BlogProvider = ({ children }) => {
-
   const navigate = useNavigate();
-  
+
   const [posts, setPosts] = useState({
     title: "",
     banner: "",
@@ -40,11 +41,11 @@ export const BlogProvider = ({ children }) => {
     city: "",
     slug: "",
     postTags: [],
-    draft: false
+    draft: false,
   });
-  const [allPosts, setAllPosts] = useState([])
+  const [allPosts, setAllPosts] = useState([]);
   const [isReady, setIsReady] = useState(false);
-  const [editorState, setEditorState] = useState('editor');
+  const [editorState, setEditorState] = useState("editor");
 
   const createBlogPost = async (post) => {
     try {
@@ -63,143 +64,176 @@ export const BlogProvider = ({ children }) => {
       const rest = await createPost(payload);
 
       setPosts((prev) => ({
-        ...prev, 
+        ...prev,
         ...payload,
         data: rest.data,
         postTags: rest?.data.postTags || [],
       }));
 
-      toast.success("Post Creado con Éxito")
-      navigate("/")
+      toast.success("Post Creado con Éxito");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000); 
+
       return rest.data;
     } catch (error) {
-      console.error("Error al crear el posts:", error.response?.data || error.message)
+      console.error(
+        "Error al crear el posts:",
+        error.response?.data || error.message
+      );
       toast.error(error.response?.data?.message || "Error al crear el post");
     }
-  }
+  };
 
   const getAllPosts = async (limit = 10, offset = 0) => {
     try {
-      const {data} = await getPosts(limit, offset);
-      const filterPosts = data.filter(post => !(post.is_active === false || post.draft === true))
+      const { data } = await getPosts(limit, offset);
+      const filterPosts = data.filter(
+        (post) => !(post.is_active === false || post.draft === true)
+      );
 
       if (offset === 0) {
         // Primera carga de datos (resetea)
         setAllPosts(filterPosts);
       } else {
         // Cargar más datos (concatena)
-        setAllPosts(prev => [...prev, ...filterPosts]);
+        setAllPosts((prev) => [...prev, ...filterPosts]);
       }
 
-      return(filterPosts) 
+      return filterPosts;
     } catch (error) {
-      console.error("Error al obtener los posts:", error.response?.data || error.message)
+      console.error(
+        "Error al obtener los posts:",
+        error.response?.data || error.message
+      );
       toast.error(error.response?.data?.message || "Error al obtener los post");
     }
-  }
+  };
 
   const getPostsTrending = async () => {
     try {
-      const trending = await getTrendingPosts()
+      const trending = await getTrendingPosts();
 
-      return trending.data
+      return trending.data;
     } catch (error) {
-      console.error("Error al obtener los posts:", error.response?.data || error.message)
+      console.error(
+        "Error al obtener los posts:",
+        error.response?.data || error.message
+      );
       toast.error(error.response?.data?.message || "Error al obtener los post");
     }
-  }
+  };
 
   const getCountAllTags = async () => {
     try {
-      const countTags = await getCountTags()
+      const countTags = await getCountTags();
 
-      return countTags.data
+      return countTags.data;
     } catch (error) {
-      console.error("Error al obtener los tags:", error.response?.data || error.message)
+      console.error(
+        "Error al obtener los tags:",
+        error.response?.data || error.message
+      );
       toast.error(error.response?.data?.message || "Error al obtener los tags");
     }
-  }
+  };
 
   const getAllPostByTag = async (tag) => {
     try {
-      const result = await getPostByTag(tag)
+      const result = await getPostByTag(tag);
       if (!result.data || result.data.length === 0) {
         toast.error("No se encontraron posts para este tag");
         return [];
       }
-      return result.data
+      return result.data;
     } catch (error) {
-      console.error("Error al obtener los posts por tag:", error.response?.data || error.message)
-      toast.error(error.response?.data?.message || "Error al obtener los post por tag");
+      console.error(
+        "Error al obtener los posts por tag:",
+        error.response?.data || error.message
+      );
+      toast.error(
+        error.response?.data?.message || "Error al obtener los post por tag"
+      );
     }
-  }
+  };
 
   const getPostBySearch = async (limit = 10, offset = 0, search) => {
     try {
-      const {data} = await getSearchPosts(`%${search}%`, limit, offset)
+      const { data } = await getSearchPosts(`%${search}%`, limit, offset);
 
       if (!data || data.length === 0) {
         toast.error("No se encontraron posts para esta búsqueda");
         return [];
       }
 
-      const filterPosts = data.filter(post => !(post.is_active === false || post.draft === true))
+      const filterPosts = data.filter(
+        (post) => !(post.is_active === false || post.draft === true)
+      );
 
-      return filterPosts
+      return filterPosts;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error al obtener los post por búsqueda");
+      toast.error(
+        error.response?.data?.message ||
+          "Error al obtener los post por búsqueda"
+      );
     }
-  }
+  };
 
   const getUsersBySearch = async (limit = 20, offset = 0, search) => {
     try {
-      const {data} = await getSearchUSers(`%${search}%`, limit, offset)
+      const { data } = await getSearchUSers(`%${search}%`, limit, offset);
 
-      if(!data || data.length === 0){
-        toast.error("No se encontraron usuarios para esta búsqueda")
-        return []
+      if (!data || data.length === 0) {
+        toast.error("No se encontraron usuarios para esta búsqueda");
+        return [];
       }
 
-      const filterUsers = data.filter(user => user.is_active === true)
+      const filterUsers = data.filter((user) => user.is_active === true);
 
-      return filterUsers
+      return filterUsers;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error al obtener los usuarios por búsqueda");
+      toast.error(
+        error.response?.data?.message ||
+          "Error al obtener los usuarios por búsqueda"
+      );
     }
-  }
+  };
 
-  const getUserPost = async(id_user, limit = 10, offset = 0) => {
+  const getUserPost = async (id_user, limit = 10, offset = 0) => {
     try {
-      const {data} = await getPostByIdUser(id_user, limit, offset)
+      const { data } = await getPostByIdUser(id_user, limit, offset);
       if (!data || data.length === 0) {
         toast.error("No se encontraron posts para este usuario");
         return [];
       }
 
-      return data
+      return data;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error al obtener los posts del usuario");
+      toast.error(
+        error.response?.data?.message ||
+          "Error al obtener los posts del usuario"
+      );
     }
-  }
+  };
 
   const getPostByIdSlug = async (post_slug) => {
     try {
-      const {data} = await getPostById(post_slug)
+      const { data } = await getPostById(post_slug);
       if (!data || data.length === 0) {
         toast.error("No se encontraron posts para este usuario");
         return [];
       }
 
-      if(!data.is_active) {
+      if (!data.is_active) {
         toast.error("El post no está disponible");
         return [];
       }
 
-      return data
+      return data;
     } catch (error) {
       toast.error(error.response?.data?.message || "Error al obtener el post");
     }
-  }
+  };
 
   const getCommentsPost = async (post_id, page = 1) => {
     try {
@@ -208,55 +242,91 @@ export const BlogProvider = ({ children }) => {
         toast.error("No se encontraron comentarios para este post");
         return [];
       }
-      return data
+      return data;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error al obtener los comentarios");
+      toast.error(
+        error.response?.data?.message || "Error al obtener los comentarios"
+      );
     }
-  }
+  };
 
   const updateReadCount = async (post_id, user_id) => {
-    const user_uuid = user_id ? null : getOrCreateUUID()
-    const  id_user = user_id || null
+    const user_uuid = user_id ? null : getOrCreateUUID();
+    const id_user = user_id || null;
     try {
-      await updatePostReadCount(post_id, id_user, user_uuid)
+      await updatePostReadCount(post_id, id_user, user_uuid);
     } catch (error) {
-      console.error("Error al actualizar el contador de lecturas:", error.response?.data || error.message)
+      console.error(
+        "Error al actualizar el contador de lecturas:",
+        error.response?.data || error.message
+      );
     }
-  }
+  };
 
   const updatePostById = async (postUpdate) => {
     try {
-      const data = await updatePost( postUpdate.post_id, postUpdate)
-      return data.data
+      const { data } = await updatePost(postUpdate.post_id, postUpdate);
+
+      return data.message
     } catch (error) {
-      console.error("Error al actualizar el contador de lecturas:", error.response?.data || error.message)
-    } 
+      console.error(
+        "Error al actualizar el contador de lecturas:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
+  const likePostUser = async (post_id, user_id) => {
+    try {
+      const {data} = await likePost(post_id, user_id)
+      return data
+    } catch (error) {
+      console.error(
+        "Error al agregar like",
+        error.response?.data || error.message
+      );
+    }
+  }
+
+  const desLikePostUser = async (post_id, user_id) => {
+    try {
+      const {data} = await disLikePost(post_id, user_id)
+      return data
+    } catch (error) {
+      console.error(
+        "Error al quitar like",
+        error.response?.data || error.message
+      );
+    }
   }
 
   return (
-    <BlogContext.Provider value={{ 
-      posts, 
-      setPosts, 
-      isReady, 
-      setIsReady, 
-      editorState, 
-      allPosts,
-      setEditorState,
-      createBlogPost,
-      getAllPosts,
-      getPostsTrending,
-      getCountAllTags,
-      getAllPostByTag,
-      getPostBySearch,
-      getUsersBySearch,
-      getUserPost,
-      getPostByIdSlug,
-      getCommentsPost,
-      updateReadCount,
-      updatePostById
+    <BlogContext.Provider
+      value={{
+        posts,
+        setPosts,
+        isReady,
+        setIsReady,
+        editorState,
+        allPosts,
+        setEditorState,
+        createBlogPost,
+        getAllPosts,
+        getPostsTrending,
+        getCountAllTags,
+        getAllPostByTag,
+        getPostBySearch,
+        getUsersBySearch,
+        getUserPost,
+        getPostByIdSlug,
+        getCommentsPost,
+        updateReadCount,
+        updatePostById,
+        likePostUser,
+        desLikePostUser
       }}
     >
-    {children}
+      {children}
     </BlogContext.Provider>
-  )
-}
+  );
+};

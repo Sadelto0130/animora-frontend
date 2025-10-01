@@ -4,7 +4,7 @@ import { array, set } from 'zod'
 import Cookie from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
 import Loader from '../components/ui/Loader'
-import { getProfileByUserName } from '../api/users.api'
+import { getProfileByUserName, login, logout, userLoginGoogle, userRegisterGoogle } from '../api/users.api'
 
 export const AuthContext = createContext()
 
@@ -48,7 +48,7 @@ export function AuthProvider({ children}) {
     setErrors(null)
     setLoading(true)
     try {
-      const res = await axios.post("/login", data)
+      const res = await login(data) 
 
       setUser(res.data)
       setIsAuth(true);
@@ -65,18 +65,19 @@ export function AuthProvider({ children}) {
     }
   }
 
-  const logout = async () => {
-    await axios.post("/logout");
+  const logoutUser = async () => {
+    await logout();
     setUser(null)
     setIsAuth(false)
     setErrors(null)
     navigate("/")
+    window.location.reload(); 
   }
 
   const google_login = async (data) => {
     try {
       const google_token = data
-      const res = await axios.post('/google_login_user', {google_token})
+      const res = await userLoginGoogle(google_token)
       setUser(res.data)
       setIsAuth(true);
       return res.data
@@ -101,7 +102,7 @@ export function AuthProvider({ children}) {
     setErrors[null]
     try {
       const google_token = data
-      const res = await axios.post("/google_register_user", {google_token});
+      const res = await userRegisterGoogle(google_token);
       setUser(res.data)
       setIsAuth(true);
       return res.data;
@@ -172,7 +173,7 @@ export function AuthProvider({ children}) {
         clearRegisterErrors,
         registerUser,
         loginUser,
-        logout, 
+        logoutUser, 
         google_login,
         google_register,
         getUserByUserName

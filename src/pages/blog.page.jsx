@@ -4,14 +4,14 @@ import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import AnimationWrapper from "../common/page-animation";
 import Loader from "../components/ui/Loader";
-import BlogInteraction from "../components/blog/blog-interaction.component";
-import BlogPostCard from "../components/blog/blog-post.component";
-import BlogContent from "../components/blog/blog-content.component";
+import BlogInteraction from "../components/blog/BlogInteraction";
+import BlogPostCard from "../components/blog/BlogPostCard";
+import BlogContent from "../components/blog/BlogContent";
 import { getFullDate } from "../libs/utils";
 
 const BlogPage = () => {
   const { getPostByIdSlug, getCommentsPost, updateReadCount, getAllPostByTag } =
-    useBlog();
+    useBlog(); 
   const { user } = useAuth();
   const { post_slug } = useParams();
   const [post, setPost] = useState({});
@@ -53,7 +53,7 @@ const BlogPage = () => {
       // Tomar los 3 primeros
       setSimilarPost(shuffled.slice(0, 3));
     } catch (error) {
-      console.error("Error obteniendo post similastes:", error);
+      console.error("Error obteniendo post similares:", error);
       return <h1>Error al obtener post similares</h1>;
     }
   };

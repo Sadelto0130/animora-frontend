@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useBlog } from "../context/BlogContext";
-import AnimationWrapper from "../common/page-animation";
+import { useBlog } from "../../context/BlogContext.jsx";
+import AnimationWrapper from "../../common/page-animation.jsx";
 import toast, { Toaster } from "react-hot-toast";
-import LocationSelector from "./ui/CountrySelector.jsx";
-import { slugify } from "../libs/slugify.js";
-import TagInput from "./ui/TagInput.jsx";
+import LocationSelector from "../ui/CountrySelector.jsx";
+import { slugify } from "../../libs/slugify.js";
+import TagInput from "../ui/TagInput.jsx";
+import { useNavigate } from "react-router-dom";
 
 const PublishForm = ({ postBySlug, setPostBySlug }) => {
+  const navigate = useNavigate();
   const {
     posts,
     setPosts,
@@ -41,7 +43,7 @@ const PublishForm = ({ postBySlug, setPostBySlug }) => {
     }
   };
 
-  const handlePostPublish = async (isDraft = false, e) => {
+  const handlePostPublish = async (isDraft = false) => {
     if (isPublishing) return;
 
     if (!title?.length)
@@ -66,12 +68,16 @@ const PublishForm = ({ postBySlug, setPostBySlug }) => {
       const newPost = {
         ...posts,
         slug: generateSlug,
-        draft: isDraft,
+        draft: isDraft ? isDraft : draftPost,
       };
 
       setPosts(newPost);
 
       const created = await createBlogPost(newPost);
+      toast.success("Post creado con exito"); 
+      setTimeout(() => {
+        navigate(`/user_profile/${updatePost.users.user_name}`);
+      }, 2000); // espera 2 segundos 
     } catch (error) {
       toast.error("Error al crear el post");
       console.error("Error al crear el posts:", error);
@@ -80,8 +86,7 @@ const PublishForm = ({ postBySlug, setPostBySlug }) => {
     }
   };
 
-  const handlePostUpdate = async (e, isDraft = false) => {
-    e.preventDefault()
+  const handlePostUpdate = async (isDraft = false) => {
     if (isPublishing) return;
 
     if (!title?.length)
@@ -101,12 +106,16 @@ const PublishForm = ({ postBySlug, setPostBySlug }) => {
     try {
       const updatePost = {
         ...posts,
-        draft: isDraft,
+        draft: isDraft ? isDraft : draftPost,
       };
 
       setPosts(updatePost);
-      const res = await updatePostById(posts)
-      console.log("respuesta backend:", res)
+
+      const res = await updatePostById(updatePost)
+      toast.success("Post actualizado con exito"); 
+      setTimeout(() => {
+        navigate(`/user_profile/${updatePost.users.user_name}`);
+      }, 2000); // espera 2 segundos
     } catch (error) {
       toast.error("Error al crear el post");
       console.error("Error al crear el posts:", error);
@@ -116,12 +125,8 @@ const PublishForm = ({ postBySlug, setPostBySlug }) => {
   };
 
   useEffect(() => {
-    setPostBySlug(posts)
-    
-    console.log("Posts actualizado en PublishForm:", posts.content);
-      
-  }, [posts]);
-
+    posts
+  }, [draftPost])
 
   return (
     <AnimationWrapper>
@@ -188,7 +193,10 @@ const PublishForm = ({ postBySlug, setPostBySlug }) => {
                 isPublishing ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={isPublishing}
-              onClick={!postBySlug ? handlePostPublish : handlePostUpdate}
+              onClick={() =>{
+                setDraftPost()
+                postBySlug.post_id > 0 ? handlePostUpdate() : handlePostPublish()
+              }}
             >
               {postBySlug
                 ? (isPublishing ? "Actualizando..." : "Actualizar")
@@ -200,8 +208,8 @@ const PublishForm = ({ postBySlug, setPostBySlug }) => {
                 isPublishing ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={isPublishing}
-              onClick={() => {
-                !postBySlug ? handlePostPublish(e, true) : handlePostUpdate(e, true)
+              onClick={() => {               
+                postBySlug.post_id > 0 ? handlePostUpdate(true) : handlePostPublish(true)
               }}
             >
               {isPublishing ? "Guardando..." : "Guardar"}

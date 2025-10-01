@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import Loader from "../ui/Loader";
-import NoDataMessage from "../ui/nodata.component";
-import { useBlog } from "../../context/BlogContext";
-import AnimationWrapper from "../../common/page-animation";
-import UserCard from "./usercard.component";
+import Loader from "./ui/Loader";
+import NoDataMessage from "./ui/nodata.component";
+import { useBlog } from "../context/BlogContext";
+import AnimationWrapper from "../common/page-animation";
+import UserCard from "./profile/usercard.component";
 
 const UserCardWrapper = ({query}) => {
   const { getUsersBySearch } = useBlog();

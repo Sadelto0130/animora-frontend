@@ -1,4 +1,4 @@
-import client from "./axios";
+ import client from "./axios"; 
 
 export const createPost = (post) => client.post("/post", post);
 
@@ -29,6 +29,10 @@ export const updatePostReadCount = (post_id, user_id, user_uuid) =>
   client.post("/read_count", { post_id, user_id, user_uuid });
 
 export const updatePost = (id, postUpdate) => client.put(`/post/${id}`, postUpdate);
+
+export const likePost = (post_id, user_id) => client.post(`/like_post`, {post_id, user_id}) 
+
+export const disLikePost = (post_id, user_id) => client.delete(`/dislike_post`, {data: {post_id, user_id}}) 
 
 /* rutas sin usar */
 

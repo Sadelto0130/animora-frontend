@@ -3,7 +3,7 @@ import { useBlog } from "../context/BlogContext";
 import AnimationWrapper from "../common/page-animation";
 import InPageNavigation from "../components/inpage-navigation.component";
 import Loader from "../components/ui/Loader";
-import BlogPostCard from "../components/blog/blog-post.component";
+import BlogPostCard from "../components/blog/BlogPostCard";
 import MinimalBlogPost from "../components/nobanner-blog-post.component";
 import { activeTabRef } from "../components/inpage-navigation.component";
 import NoDataMessage from "../components/ui/nodata.component";
@@ -154,7 +154,7 @@ function HomePage() {
           </InPageNavigation>
         </div>
 
-        {/* Filtros y tendencias */}
+        {/* Categorias y tendencias */}
         {categorias === null ? (
           <Loader />
         ) : (

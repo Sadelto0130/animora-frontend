@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import BlogEditor from '../components/blog/blog-editor.component'
-import PublishForm from '../components/publish-form.component'
+import BlogEditor from '../components/blog/BlogEditor'
+import PublishForm from '../components/blog/BlogPublishForm'
 import { useBlog } from '../context/BlogContext'
 import { useParams } from 'react-router-dom'
 import Loader from '../components/ui/Loader'

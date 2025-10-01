@@ -16,6 +16,12 @@ const BlogEditor = ({postBySlug, setPostBySlug}) => {
   const textareaRef = useRef(null);
   const [loading, setLoading] = useState(true)
 
+  useEffect(()=> {
+    if(postBySlug) {
+      setPosts(postBySlug)
+    }
+  }, [postBySlug])
+  
   useEffect(() => {
     const initEditor = async () => {
     if (!editorRef.current) {
@@ -30,11 +36,6 @@ const BlogEditor = ({postBySlug, setPostBySlug}) => {
       })
     }
   }
-
-  if(postBySlug) {
-      setPosts(postBySlug)
-    }
-
 
   initEditor()
 
@@ -55,10 +56,6 @@ const BlogEditor = ({postBySlug, setPostBySlug}) => {
       textarea.style.height = `${textarea.scrollHeight}px`; // ajustar al contenido
     }
   }, [posts.title]);
-
-  useEffect(()=> {
-    setPostBySlug(posts)
-  }, posts)
 
   const handleBannerUpload = async (e) => {
     let img = e.target.files[0];
@@ -123,12 +120,16 @@ const BlogEditor = ({postBySlug, setPostBySlug}) => {
         content: output.blocks
       }))
 
+      setPostBySlug({
+        ...posts,
+        content: output.blocks
+      });
+
       setEditorState("publish");
     } catch (error) {
       console.error("Error al guardar los datos: ", error);
     }
   };
-
   
   return (
     posts?.banner ? 
@@ -171,9 +172,9 @@ const BlogEditor = ({postBySlug, setPostBySlug}) => {
           </AnimationWrapper>
           <div className="flex justify-center gap-4 ml-auto pb-10">
             <button className="btn-dark py-2" onClick={handlePublish}>
-              Publicar
+              {postBySlug ? "Actualizar" : "Publicar"}
             </button>
-            <button className="btn-light py-2">Guardar</button>
+            <button className={postBySlug ? "hidden" : `btn-light py-2`}>Guardar</button>
           </div>
         
         </>

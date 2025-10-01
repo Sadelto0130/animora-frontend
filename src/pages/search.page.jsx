@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import InPageNavigation from "../components/inpage-navigation.component";
 import AnimationWrapper from "../common/page-animation";
-import BlogPostCard from "../components/blog/blog-post.component";
+import BlogPostCard from "../components/blog/BlogPostCard";
 import LoadMorePostsBtn from "../components/ui/load-more.component";
 import NoDataMessage from "../components/ui/nodata.component";
 import Loader from "../components/ui/Loader";
-import UserCardWrapper from "../components/profile/UserCardWrapper";
+import UserCardWrapper from "../components/UserCardWrapper";
 import { useBlog } from "../context/BlogContext";
 import { useAuth } from "../context/AuthContext";
 

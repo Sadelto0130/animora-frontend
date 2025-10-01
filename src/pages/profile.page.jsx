@@ -5,7 +5,7 @@ import AnimationWrapper from "../common/page-animation";
 import InPageNavigation from "../components/inpage-navigation.component";
 import Loader from "../components/ui/Loader";
 import AboutUser from "../components/profile/about.component";
-import BlogPostCard from "../components/blog/blog-post.component";
+import BlogPostCard from "../components/blog/BlogPostCard";
 import NoDataMessage from "../components/ui/nodata.component";
 import LoadMorePostsBtn from "../components/ui/load-more.component";
 import { useBlog } from "../context/BlogContext";
