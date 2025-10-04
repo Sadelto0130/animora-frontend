@@ -23,8 +23,6 @@ export const getPostByIdUser = (id_user, limit, offset) =>
 
 export const getPostById = (post_slug) => client.get(`/post/${post_slug}`);
 
-export const getComments = (post_id, page) => client.get(`/comments/${post_id}`, { params: { page }});
-
 export const updatePostReadCount = (post_id, user_id, user_uuid) =>
   client.post("/read_count", { post_id, user_id, user_uuid });
 

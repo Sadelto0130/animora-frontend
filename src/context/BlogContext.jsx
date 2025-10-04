@@ -11,7 +11,6 @@ import {
   getPostByTag,
   getSearchPosts,
   getSearchUSers,
-  getComments,
   updatePostReadCount,
   likePost,
   disLikePost,
@@ -19,6 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { getOrCreateUUID } from "../libs/utils";
+import { createNewComments, getComments } from "../api/comments.api";
 
 const BlogContext = createContext();
 
@@ -46,6 +46,9 @@ export const BlogProvider = ({ children }) => {
   const [allPosts, setAllPosts] = useState([]);
   const [isReady, setIsReady] = useState(false);
   const [editorState, setEditorState] = useState("editor");
+  const [comentarios, setComentarios] = useState(false);
+  const [countComments, setCountComments] = useState(0);
+  const [allComments, setAllComments] = useState([])
 
   const createBlogPost = async (post) => {
     try {
@@ -73,7 +76,7 @@ export const BlogProvider = ({ children }) => {
       toast.success("Post Creado con Éxito");
       setTimeout(() => {
         navigate("/");
-      }, 2000); 
+      }, 2000);
 
       return rest.data;
     } catch (error) {
@@ -235,21 +238,6 @@ export const BlogProvider = ({ children }) => {
     }
   };
 
-  const getCommentsPost = async (post_id, page = 1) => {
-    try {
-      const { data } = await getComments(post_id, page);
-      if (!data || data.length === 0) {
-        toast.error("No se encontraron comentarios para este post");
-        return [];
-      }
-      return data;
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Error al obtener los comentarios"
-      );
-    }
-  };
-
   const updateReadCount = async (post_id, user_id) => {
     const user_uuid = user_id ? null : getOrCreateUUID();
     const id_user = user_id || null;
@@ -267,7 +255,7 @@ export const BlogProvider = ({ children }) => {
     try {
       const { data } = await updatePost(postUpdate.post_id, postUpdate);
 
-      return data.message
+      return data.message;
     } catch (error) {
       console.error(
         "Error al actualizar el contador de lecturas:",
@@ -278,27 +266,57 @@ export const BlogProvider = ({ children }) => {
 
   const likePostUser = async (post_id, user_id) => {
     try {
-      const {data} = await likePost(post_id, user_id)
-      return data
+      const { data } = await likePost(post_id, user_id);
+      return data;
     } catch (error) {
       console.error(
         "Error al agregar like",
         error.response?.data || error.message
       );
     }
-  }
+  };
 
   const desLikePostUser = async (post_id, user_id) => {
     try {
-      const {data} = await disLikePost(post_id, user_id)
-      return data
+      const { data } = await disLikePost(post_id, user_id);
+      return data;
     } catch (error) {
       console.error(
         "Error al quitar like",
         error.response?.data || error.message
       );
     }
-  }
+  };
+
+  const createComments = async (comments) => {
+    if (!comments.id_post) return console.error("Error idPost");
+    if (comments.content === "") return console.error("Debe escribir un comentario");
+    try {
+      const resp = await createNewComments(comments);
+      return resp;
+    } catch (error) {
+      console.log(error)
+      toast.error(
+        error.response?.data?.message || "Error al crear comentario"
+      );
+    }
+  };
+
+  const getCommentsPost = async (post_id, limit = 100, offset = 0) => {
+    try {
+      const { data } = await getComments(post_id, offset, limit);
+      if (!data || data.length === 0) {
+        toast.error("No se encontraron comentarios para este post");
+        return [];
+      }
+      return data;
+    } catch (error) {
+      console.log(error)
+      toast.error(
+        error.response?.data?.message || "Error al obtener los comentarios"
+      );
+    }
+  };
 
   return (
     <BlogContext.Provider
@@ -307,6 +325,12 @@ export const BlogProvider = ({ children }) => {
         setPosts,
         isReady,
         setIsReady,
+        comentarios,
+        setComentarios,
+        allComments, 
+        setAllComments,
+        countComments,
+        setCountComments,
         editorState,
         allPosts,
         setEditorState,
@@ -323,7 +347,8 @@ export const BlogProvider = ({ children }) => {
         updateReadCount,
         updatePostById,
         likePostUser,
-        desLikePostUser
+        desLikePostUser,
+        createComments,
       }}
     >
       {children}
