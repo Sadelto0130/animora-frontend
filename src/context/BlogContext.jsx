@@ -148,7 +148,7 @@ export const BlogProvider = ({ children }) => {
         toast.error("No se encontraron posts para este tag");
         return [];
       }
-      return result.data;
+      return result?.data;
     } catch (error) {
       console.error(
         "Error al obtener los posts por tag:",

@@ -84,7 +84,7 @@ const BlogPage = () => {
 
   return (
     <AnimationWrapper>
-      {loading ? (
+      {loading ? ( 
         <Loader />
       ) : (
         <>
