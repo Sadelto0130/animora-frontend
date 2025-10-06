@@ -7,7 +7,7 @@ import AnimationWrapper from "../../common/page-animation";
 import CommentCard from "./CommentCard"
 
 const CommentsContainer = () => {
-  const { comentarios, setComentarios, getCommentsPost, allComments, setAllComments, posts: {title, post_id} } = useBlog();
+  const { comentarios, setComentarios, getCommentsPost, allComments, setAllComments, setCountComments, countComments, posts: {title, post_id,user_id} } = useBlog();
   const socket = useSocket();
   const [showComments, setShowComments] = useState(10);
   const [offset, setOffset] = useState(0);
@@ -52,13 +52,45 @@ const CommentsContainer = () => {
           };
           return insertRecursively(prev);
         }
+
         return [newComment, ...prev];
       });
     };
+    setCountComments(allComments.length)
 
     socket.on("update-comments", handleNewComment);
     return () => socket.off("update-comments", handleNewComment);
   }, []);
+
+  // Socket para eliminar en tiempo real
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleDeleteComment = ({ deletedIds }) => {
+  const filterRecursively = (comments) => {
+    return comments
+      .filter(c => !deletedIds.includes(c.comment_id))
+      .map(c => ({
+        ...c,
+        replies: c.replies ? filterRecursively(c.replies) : []
+      }));
+  };
+  setAllComments(prev => filterRecursively(prev));
+};
+
+    socket.on("delete-comment", handleDeleteComment);
+    return () => socket.off("delete-comment", handleDeleteComment);
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket && post_id) socket?.emit("join-post", post_id);
+    return () => socket?.emit("leave-post", post_id);
+  }, [socket, post_id]);
+
+  useEffect(() => {
+    setCountComments(allComments?.length || 0);
+  }, [allComments]);
+
 
   return (
     <div className={"max-sm:w-full fixed " + (comentarios ? "top-0 sm:right-0" : "top-[100%] sm:right-[-100%]") + " duration-700 max-sm:right-0 sm:top-0 w-[30%] min-w-[350px] h-full z-50 bg-white shadow-2xl p-8 px-16 overflow-y-auto overflow-x-hidden"}>
@@ -75,7 +107,7 @@ const CommentsContainer = () => {
 
       {allComments?.length ? allComments.slice(0, showComments).map((comment, i) => (
         <AnimationWrapper key={comment.comment_id ?? `comment-${i}`}>
-          <CommentCard comment={comment} leftVal={comment.level * 4} />
+          <CommentCard comment={comment} leftVal={comment.level * 4} blogAutor = {user_id}/>
         </AnimationWrapper>
       )) : <NoDataMessage message="Sin comentarios aun"/>}
 

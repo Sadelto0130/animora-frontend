@@ -16,6 +16,8 @@ const BlogPage = () => {
     getCommentsPost, 
     updateReadCount, 
     getAllPostByTag,
+    setCountComments,
+    allComments,
     setPosts
   } = useBlog(); 
   const { user } = useAuth();

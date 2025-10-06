@@ -3,10 +3,14 @@ import { getDay } from "../../libs/utils";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import CommentsField from "./CommentsField";
+import { useBlog } from "../../context/BlogContext";
+import { useSocket } from "../../context/SocketContext";
 
-const CommentCard = ({ comment, leftVal = 0, onNewReply }) => {
+const CommentCard = ({ comment, leftVal = 0, onNewReply, blogAutor }) => {
+  const socket = useSocket()
   const { user } = useAuth();
-  const { comment_id, content, created_at, post_id, users, replies = [] } = comment;
+  const { deleteCommentsPost } = useBlog()
+  const {comment_id, content, parent_comment_id, created_at, post_id, user_id, users, replies = [] } = comment;
 
   const [isReply, setIsReply] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
@@ -45,8 +49,9 @@ const CommentCard = ({ comment, leftVal = 0, onNewReply }) => {
     if (onNewReply) onNewReply(newReply, parentId); // Propaga hacia CommentsContainer
   };
 
-  const verInfo = () => {
-    console.log(comment)
+  const handleDeleteComments = async () => {
+    await deleteCommentsPost(comment_id, user.id)
+    toast.success("Comentario eliminado")  
   }
 
   if (!comment_id || !content?.trim() || !created_at || !users?.name || !users?.user_name) return null;
@@ -68,11 +73,20 @@ const CommentCard = ({ comment, leftVal = 0, onNewReply }) => {
               className="text-dark-grey p-2 px-3 hover:bg-grey/20 rounded-md flex items-center gap-2"
               onClick={handleToggleReplies}
             >
-              {showReplies ? "Ocultar respuestas" : <> <i className="fi fi-rr-comment-dots"></i> Ver {localReplies.length} respuestas</>}
+              {showReplies ? "Ocultar respuestas" : <> <i className="fi fi-rr-comment-dots"></i> {localReplies.length} respuestas</>}
             </button>
           )}
           <button className="underline" onClick={handleReplyClick}>Responder</button>
-          <button onClick={verInfo}>Borrar</button>
+
+          {
+            !user ? "" : 
+              user_id === user?.id || user?.id === blogAutor
+                ? <button onClick={handleDeleteComments} className="p-2 px-3 rounded-md border border-grey ml-auto hover:bg-red/30 hover:text-red flex items-center">
+                    <i className="fi fi-rr-trash pointer-events-none"></i>
+                  </button>  
+                : ""
+          }
+          
         </div>
 
         {isReply && (
@@ -94,6 +108,7 @@ const CommentCard = ({ comment, leftVal = 0, onNewReply }) => {
               comment={reply}
               leftVal={leftVal + 1}
               onNewReply={handleNewReply} // recursivo
+              blogAutor={blogAutor}
             />
           ))
         }

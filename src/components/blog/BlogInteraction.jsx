@@ -11,8 +11,7 @@ const BlogInteraction = ({ post }) => {
     likePostUser,
     desLikePostUser,
     setComentarios,
-    countComments, 
-    setCountComments
+    countComments
   } = useBlog();
   
   const [countLike, setCountLike] = useState(parseInt(post?.total_likes) || 0);
@@ -37,9 +36,6 @@ const BlogInteraction = ({ post }) => {
     }
   };
 
-  useEffect(() => {
-    setCountComments(parseInt(post?.total_comments || 0))
-  }, [post])
 
   useEffect(() => {
     if (!user) return;
@@ -47,6 +43,7 @@ const BlogInteraction = ({ post }) => {
       setLiked(true);
     }
   }, [user, liked_by]);
+
 
   return (
     <>

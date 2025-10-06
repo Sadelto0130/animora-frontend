@@ -18,7 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { getOrCreateUUID } from "../libs/utils";
-import { createNewComments, getComments } from "../api/comments.api";
+import { createNewComments, deleteComments, getComments } from "../api/comments.api";
 
 const BlogContext = createContext();
 
@@ -318,6 +318,18 @@ export const BlogProvider = ({ children }) => {
     }
   };
 
+  const deleteCommentsPost = async (comments_id, user_id) => {
+    try {
+      const {data} = await deleteComments(comments_id, user_id)
+      return data
+    } catch (error) {
+      console.log(error)
+      toast.error(
+        error.response?.data?.message || "Error al borrar comentario"
+      );
+    }
+  }
+
   return (
     <BlogContext.Provider
       value={{
@@ -349,6 +361,7 @@ export const BlogProvider = ({ children }) => {
         likePostUser,
         desLikePostUser,
         createComments,
+        deleteCommentsPost
       }}
     >
       {children}
