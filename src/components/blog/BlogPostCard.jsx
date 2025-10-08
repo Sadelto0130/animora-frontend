@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext.jsx";
 const BlogPostCard = ({ contenido, autor }) => {
   const {user} = useAuth()
   const [liked, setLiked] = useState(false)
+  const {countLikes} = useBlog()
   let {
     created_at,
     title,
@@ -15,11 +16,13 @@ const BlogPostCard = ({ contenido, autor }) => {
     liked_by,
     total_likes,
     banner,
-    slug
+    slug, 
+    post_id,
   } = contenido;
   let { name, last_name, avatar_url, user_name } = autor;
 
   let fullName = `${name} ${last_name}`;
+  const likeCount = countLikes[post_id] ?? Number(total_likes);
 
   useEffect(() => {
     if(!user) return;
@@ -53,7 +56,7 @@ const BlogPostCard = ({ contenido, autor }) => {
           <span className="btn-light py-1 px-4">{tags[0]}</span>
           <span className="ml-3 flex items-center gap-2 text-dark-grey">
             <i className={"fi " + (liked ? "fi-sr-heart text-red" : "fi-rr-heart ")}></i>
-            {total_likes}
+            {likeCount}
           </span>
         </div>
       </div>

@@ -10,6 +10,9 @@ import { ProtectedRoute } from "./ui/ProtectedRoute";
 import SearchPage from "./pages/search.page";
 import NotFoundPage from "./pages/404.page";
 import BlogPage from "./pages/blog.page";
+import SideNav from "./components/profile/SideNav";
+import EditProfile from "./pages/edit-profile.page";
+import ChangePassword from "./pages/change-password.page";
 
 const App = () => {
   const { isAuth, loading, user } = useAuth();
@@ -36,6 +39,10 @@ const App = () => {
             <Route path="editor" element={<Editor />} />
             <Route path="editor/:slug" element={<Editor />} />
             <Route path="user_profile/:user_name" element={<ProfilePage />} />
+            <Route path="settings" element={<SideNav />} >
+              <Route path="editar_perfil" element={<EditProfile />} />
+              <Route path="cambiar_contraseña" element={<ChangePassword />} />
+            </Route>
           </Route>
           
           <Route path="*" element={<NotFoundPage />} />

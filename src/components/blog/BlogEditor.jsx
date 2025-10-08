@@ -7,45 +7,49 @@ import EditorJS from "@editorjs/editorjs";
 import { editorI18nEs, tools } from "../../libs/editorConfig.js";
 import { useBlog } from "../../context/BlogContext.jsx";
 import { set } from "zod";
-import Loader from '../ui/Loader.jsx'
+import Loader from "../ui/Loader.jsx";
 
-const BlogEditor = ({postBySlug, setPostBySlug}) => {
+const BlogEditor = ({ postBySlug, setPostBySlug }) => {
   let blogBannerRef = useRef();
   const { posts, setPosts, setEditorState } = useBlog();
   const editorRef = useRef(null);
   const textareaRef = useRef(null);
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
-  useEffect(()=> {
-    if(postBySlug) {
-      setPosts(postBySlug)
+  useEffect(() => {
+    if (postBySlug) {
+      setPosts(postBySlug);
     }
-  }, [postBySlug])
-  
+  }, [postBySlug]);
+
   useEffect(() => {
     const initEditor = async () => {
-    if (!editorRef.current) {
-      const blocks = [...(postBySlug?.content || posts?.content || [])]
+      if (!editorRef.current) {
+        const blocks = [...(postBySlug?.content || posts?.content || [])];
 
-      editorRef.current = new EditorJS({
-        holder: "textEditor",
-        data: { blocks },
-        tools,
-        placeholder: "Escribe tu post aqui...",
-        i18n: editorI18nEs,
-      })
-    }
-  }
+        editorRef.current = new EditorJS({
+          holder: "textEditor",
+          data: { blocks },
+          tools,
+          placeholder: "Escribe tu post aqui...",
+          i18n: editorI18nEs,
+        });
+      }
+    };
 
-  initEditor()
+    initEditor();
+    setLoading(false);
 
     return () => {
-      if (editorRef.current && typeof editorRef.current.destroy === "function") { 
+      if (
+        editorRef.current &&
+        typeof editorRef.current.destroy === "function"
+      ) {
         editorRef.current.destroy();
         editorRef.current = null;
       }
     };
-  setLoading(false)
+    setLoading(false);
   }, [postBySlug]);
 
   // Ajusta la altura automáticamente cuando cambia el valor
@@ -115,14 +119,14 @@ const BlogEditor = ({postBySlug, setPostBySlug}) => {
         return toast.error("El texto debe tener mas de 200 palabras");
       }
 
-      setPosts(prev => ({
+      setPosts((prev) => ({
         ...prev,
-        content: output.blocks
-      }))
+        content: output.blocks,
+      }));
 
       setPostBySlug({
         ...posts,
-        content: output.blocks
+        content: output.blocks,
       });
 
       setEditorState("publish");
@@ -130,56 +134,56 @@ const BlogEditor = ({postBySlug, setPostBySlug}) => {
       console.error("Error al guardar los datos: ", error);
     }
   };
-  
+
+  if (loading) return <Loader />;
   return (
-    posts?.banner ? 
-        <>    
-          <Toaster />
+    <>
+      <Toaster />
+      <section>
+        <div className="mx-auto max-w-[900px] w-full">
           <AnimationWrapper>
-            <section>
-              <div className="mx-auto max-w-[900px] w-full">
-                <div className="relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
-                  <label htmlFor="uploadBanner">
-                    <img
-                      ref={blogBannerRef}
-                      src={posts.banner ? posts.banner : defaultBanner}
-                      className="z-20"
-                    />
-                    <input
-                      id="uploadBanner"
-                      type="file"
-                      accept=".png, .jpg, .jpeg"
-                      hidden
-                      onChange={handleBannerUpload}
-                    />
-                  </label>
-                </div>
-  
-                <textarea
-                  ref={textareaRef}
-                  value={posts.title ? posts.title : ""}
-                  placeholder="Titulo"
-                  className="text-4xl font-medium w-full min-h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-40 overflow-hidden"
-                  onKeyDown={handleTitleKeyDown}
-                  onChange={handleTitleChange}
-                ></textarea>
-  
-                <hr className="w-full opacity-10 my-5" />
-  
-                <div id="textEditor" className="font-gelasio"></div>
-              </div>
-            </section>
+            <div className="relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
+              <label htmlFor="uploadBanner">
+                <img
+                  ref={blogBannerRef}
+                  src={posts.banner ? posts.banner : defaultBanner}
+                  className="z-20"
+                />
+                <input
+                  id="uploadBanner"
+                  type="file"
+                  accept=".png, .jpg, .jpeg"
+                  hidden
+                  onChange={handleBannerUpload}
+                />
+              </label>
+            </div>
+
+            <textarea
+              ref={textareaRef}
+              value={posts.title ? posts.title : ""}
+              placeholder="Titulo"
+              className="text-4xl font-medium w-full min-h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-40 overflow-hidden"
+              onKeyDown={handleTitleKeyDown}
+              onChange={handleTitleChange}
+            ></textarea>
+
+            <hr className="w-full opacity-10 my-5" />
+
+            <div id="textEditor" className="font-gelasio"></div>
           </AnimationWrapper>
-          <div className="flex justify-center gap-4 ml-auto pb-10">
-            <button className="btn-dark py-2" onClick={handlePublish}>
-              {postBySlug ? "Actualizar" : "Publicar"}
-            </button>
-            <button className={postBySlug ? "hidden" : `btn-light py-2`}>Guardar</button>
-          </div>
-        
-        </>
-      : <Loader />
-    );
+        </div>
+      </section>
+      <div className="flex justify-center gap-4 ml-auto pb-10">
+        <button className="btn-dark py-2" onClick={handlePublish}>
+          {postBySlug ? "Actualizar" : "Publicar"}
+        </button>
+        <button className={postBySlug ? "hidden" : `btn-light py-2`}>
+          Guardar
+        </button>
+      </div>
+    </>
+  );
 };
 
 export default BlogEditor;

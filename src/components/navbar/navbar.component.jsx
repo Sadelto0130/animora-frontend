@@ -6,7 +6,7 @@ import { TfiWrite } from "react-icons/tfi";
 import { MdOutlinePets } from "react-icons/md";
 import logo from "../../imgs/logo.png";
 import { useAuth } from "../../context/AuthContext";
-import UserNavigationPanel from "../profile/user-navigation.component";
+import UserNavigationPanel from "./user-navigation.component";
 
 const Navbar = () => {
   const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
@@ -37,7 +37,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="navbar">
+      <nav className="navbar z-50">
         <Link to="/" className="flex-none w-10">
           <FaSearch />
           <img src={logo} className="w-full" alt="Logo" />

@@ -42,8 +42,8 @@ const BlogPage = () => {
       // filtrar duplicados y excluye post actual
       const uniquePosts = mergedTag?.filter(
         (p, index, arr) =>
-          p.post_id !== currentPostId && // excluye
-          arr.findIndex((x) => x.post_id === p.post_id) === index // filtra
+          p?.post_id !== currentPostId && // excluye
+          arr.findIndex((x) => x?.post_id === p?.post_id) === index // filtra
       );
 
       // Mezclar aleatoriamente

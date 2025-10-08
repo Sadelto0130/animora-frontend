@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   createPost,
   getPosts,
@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { getOrCreateUUID } from "../libs/utils";
 import { createNewComments, deleteComments, getComments } from "../api/comments.api";
+import { useSocket } from "./SocketContext";
 
 const BlogContext = createContext();
 
@@ -30,6 +31,7 @@ export const useBlog = () => {
 
 export const BlogProvider = ({ children }) => {
   const navigate = useNavigate();
+  const socket = useSocket()
 
   const [posts, setPosts] = useState({
     title: "",
@@ -49,6 +51,11 @@ export const BlogProvider = ({ children }) => {
   const [comentarios, setComentarios] = useState(false);
   const [countComments, setCountComments] = useState(0);
   const [allComments, setAllComments] = useState([])
+  const [countLikes, setCountLikes] = useState({})
+
+  const updateLikes = (postId, count) => {
+    setCountLikes(prev => ({...prev, [postId]: count}))
+  }
 
   const createBlogPost = async (post) => {
     try {
@@ -267,6 +274,8 @@ export const BlogProvider = ({ children }) => {
   const likePostUser = async (post_id, user_id) => {
     try {
       const { data } = await likePost(post_id, user_id);
+      setCountLikes(prev => ({...prev, [post_id]: Number(data.likes_count)}))
+      socket.emit("like-post", {id: post_id, likes_count: data.likes_count})
       return data;
     } catch (error) {
       console.error(
@@ -279,6 +288,8 @@ export const BlogProvider = ({ children }) => {
   const desLikePostUser = async (post_id, user_id) => {
     try {
       const { data } = await disLikePost(post_id, user_id);
+      setCountLikes(prev => ({...prev, [post_id]: Number(data.likes_count)}))
+      socket.emit("dislike-post", {id: post_id, likes_count: data.likes_count})
       return data;
     } catch (error) {
       console.error(
@@ -330,6 +341,21 @@ export const BlogProvider = ({ children }) => {
     }
   }
 
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleLike = (data) => updateLikes(data.id, Number(data.likes_count));
+    const handleDislike = (data) => updateLikes(data.id, Number(data.likes_count));
+
+    socket.on("like-post", handleLike);
+    socket.on("dislike-post", handleDislike);
+
+    return () => {
+      socket.off("like-post", handleLike);
+      socket.off("dislike-post", handleDislike);
+    };
+  }, [socket]);
+
   return (
     <BlogContext.Provider
       value={{
@@ -343,6 +369,8 @@ export const BlogProvider = ({ children }) => {
         setAllComments,
         countComments,
         setCountComments,
+        countLikes, 
+        setCountLikes,
         editorState,
         allPosts,
         setEditorState,
@@ -361,7 +389,8 @@ export const BlogProvider = ({ children }) => {
         likePostUser,
         desLikePostUser,
         createComments,
-        deleteCommentsPost
+        deleteCommentsPost,
+        updateLikes
       }}
     >
       {children}

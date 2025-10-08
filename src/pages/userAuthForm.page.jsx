@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import InputBox from "../components/ui/input.component";
+import InputBox from "../components/ui/InputBox";
 import googleIcon from "../imgs/google.png";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";

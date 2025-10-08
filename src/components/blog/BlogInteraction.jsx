@@ -3,47 +3,73 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useBlog } from "../../context/BlogContext";
 import toast, { Toaster } from "react-hot-toast";
+import { useSocket } from "../../context/SocketContext";
 
 const BlogInteraction = ({ post }) => {
+  const socket = useSocket()
   const { user } = useAuth();
   const {
     setEditorState,
     likePostUser,
     desLikePostUser,
     setComentarios,
-    countComments
+    countComments,
+    setCountLikes,
+    countLikes,
+    updateLikes
   } = useBlog();
   
-  const [countLike, setCountLike] = useState(parseInt(post?.total_likes) || 0);
+  //const [totalCountLike, setTotalCountLike] = useState(parseInt(post?.total_likes) || countLikes);
   const [liked, setLiked] = useState(false);
-
-  const { post_id, total_likes, title, users, total_comments, slug, liked_by } =
-    post || {};
+  const { post_id, title, users, slug, liked_by } =
+  post || {};
+  const likeCount = countLikes[post_id] ?? Number(post.total_likes);
 
   const handleLike = async () => {
     if (!user) {
       toast.error("Debe estar registrado para dar like");
       return;
     }
-    if (!liked) {
-      await likePostUser(post_id, user.id);
-      setCountLike((prev) => prev + 1);
-      setLiked(true);
-    } else {
-      await desLikePostUser(post_id, user.id);
-      setCountLike((prev) => (prev > 0 ? prev - 1 : 0));
-      setLiked(false);
+
+    try {
+      if (!liked) {
+        await likePostUser(post_id, user.id);
+      } else {
+        await desLikePostUser(post_id, user.id);
+      }
+      setLiked(preVal => !preVal );
+    } catch (error) {
+      console.error(err);
+      toast.error("Error al actualizar el like");
     }
   };
 
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !socket) return;
+
     if (liked_by?.some((u) => u.id === user?.id)) {
       setLiked(true);
     }
-  }, [user, liked_by]);
+    
+    const handleLikePost = (data) => {
+      if(Number(data.id) === Number(post_id)) {
+        setCountLikes(data.likes_count)
+      }
+    }
 
+    const handleDislikePost = (data) => {
+      if(Number(data.id) === Number(post_id)) {
+        setCountLikes(data.likes_count)
+      }
+    }
+  }, [user, socket, post_id, liked_by, setCountLikes]);
+
+  useEffect(() => {
+    if (post?.total_likes !== undefined) {
+      setCountLikes(Number(post.total_likes));
+    }
+  }, [post, setCountLikes]);
 
   return (
     <>
@@ -64,7 +90,7 @@ const BlogInteraction = ({ post }) => {
               }
             ></i>
           </button>
-          <p>{countLike}</p>
+          <p>{likeCount}</p>
 
           <button 
             onClick={() => setComentarios(preVal => !preVal)}
