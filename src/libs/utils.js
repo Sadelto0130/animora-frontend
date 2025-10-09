@@ -18,3 +18,33 @@ export const getFullDate = (created) => {
 
   return `${date.getDate()} ${date.toLocaleString("es-ES", {month: "short"}).toUpperCase()} del ${date.getFullYear()}`
 }
+
+export const validarPassword = (password) => {
+  if (!password) {
+    return { valido: false, mensaje: "La contraseña no puede estar vacía" };
+  }
+
+  // Evitar caracteres especiales
+  if (/[^a-zA-Z0-9]/.test(password)) {
+    return { valido: false, mensaje: "La contraseña no debe contener caracteres especiales" };
+  }
+
+  if (password.length < 6) {
+    return { valido: false, mensaje: "La contraseña debe tener al menos 6 caracteres" };
+  }
+
+  if (!/[a-z]/.test(password)) {
+    return { valido: false, mensaje: "Falta al menos una letra minúscula" };
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return { valido: false, mensaje: "Falta al menos una letra mayúscula" };
+  }
+
+  if (!/[0-9]/.test(password)) {
+    return { valido: false, mensaje: "Falta al menos un número" };
+  }
+
+  return { valido: true, mensaje: "Contraseña válida" };
+}
+

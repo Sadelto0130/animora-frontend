@@ -7,9 +7,11 @@ import AnimationWrapper from "../common/page-animation";
 import { json } from "zod";
 import { useForm } from "react-hook-form";
 import { authWithGoogle } from "../common/firebase";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+import { validarPassword } from "../libs/utils";
 
 const UserAuthForm = ({ type }) => {
+  let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
   const {
     registerUser,
     loginUser,
@@ -32,6 +34,8 @@ const UserAuthForm = ({ type }) => {
   const onSubmit = handleSubmit(async (data) => {
     try {
       if (type === "register") {
+        const passwordValidate = validarPassword(password)
+        if(!passwordValidate.valido) 
         await registerUser(data);
       } else {
         await loginUser(data);
@@ -70,6 +74,8 @@ const UserAuthForm = ({ type }) => {
   }, [registerErrors, clearErrors, clearRegisterErrors]);
 
   return (
+    <>
+    <Toaster/>
     <AnimationWrapper keyValue={type}>
       <section className="h-cover flex items-center justify-center">
         <form className="w-[80%] max-w-[400px]" onSubmit={onSubmit}>
@@ -199,6 +205,7 @@ const UserAuthForm = ({ type }) => {
         </form>
       </section>
     </AnimationWrapper>
+    </>
   );
 };
 

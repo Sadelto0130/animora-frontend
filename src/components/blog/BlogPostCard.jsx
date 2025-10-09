@@ -35,7 +35,7 @@ const BlogPostCard = ({ contenido, autor }) => {
     <Link to={`/post/${slug}`} className="flex gap-8 items-center border-b border-[#a0a0a0] pb-5 mb-4">
       <div className="w-full">
         <div className="flex gap-2 items-center mb-7">
-          <img src={avatar_url !== null ? avatar_url.replace(/;/g, "") : ""} className="w-6 h-6 rounded-full" />
+          <img src={avatar_url !== null ? avatar_url : ""} className="w-6 h-6 rounded-full" />
           <p className="line-clamp-1">
             {fullName} @{user_name}
           </p>

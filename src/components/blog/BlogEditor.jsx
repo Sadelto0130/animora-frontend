@@ -23,6 +23,7 @@ const BlogEditor = ({ postBySlug, setPostBySlug }) => {
   }, [postBySlug]);
 
   useEffect(() => {
+    if(loading) return
     const initEditor = async () => {
       if (!editorRef.current) {
         const blocks = [...(postBySlug?.content || posts?.content || [])];
@@ -38,7 +39,6 @@ const BlogEditor = ({ postBySlug, setPostBySlug }) => {
     };
 
     initEditor();
-    setLoading(false);
 
     return () => {
       if (
@@ -49,8 +49,9 @@ const BlogEditor = ({ postBySlug, setPostBySlug }) => {
         editorRef.current = null;
       }
     };
-    setLoading(false);
-  }, [postBySlug]);
+  }, [postBySlug, loading]);
+
+  useEffect(()=> {setLoading(false)}, [])
 
   // Ajusta la altura automáticamente cuando cambia el valor
   useEffect(() => {
@@ -176,9 +177,9 @@ const BlogEditor = ({ postBySlug, setPostBySlug }) => {
       </section>
       <div className="flex justify-center gap-4 ml-auto pb-10">
         <button className="btn-dark py-2" onClick={handlePublish}>
-          {postBySlug ? "Actualizar" : "Publicar"}
+          {postBySlug.length > 0 ? "Actualizar" : "Publicar"}
         </button>
-        <button className={postBySlug ? "hidden" : `btn-light py-2`}>
+        <button className={postBySlug.length > 0 ? "hidden" : `btn-light py-2`}>
           Guardar
         </button>
       </div>

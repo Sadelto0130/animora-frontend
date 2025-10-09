@@ -51,6 +51,7 @@ const BlogPage = () => {
 
       // Tomar los 3 primeros
       setSimilarPost(shuffled.slice(0, 3));
+      setLoading(false);
     } catch (error) {
       console.error("Error obteniendo post similares:", error);
       return <h1>Error al obtener post similares</h1>;
@@ -141,7 +142,7 @@ const BlogPage = () => {
                 <h1 className="text-2xl mt-14 mb-10 font-medium">
                   Post Sugeridos
                 </h1>
-                {similarPost.map((post, i) => {
+                {similarPost?.map((post, i) => {
                   let { users } = post;
 
                   return (
@@ -149,7 +150,7 @@ const BlogPage = () => {
                       key={i}
                       transition={{ duration: 1, delay: i * 0.08 }}
                     >
-                      <BlogPostCard contenido={post} autor={post.users} />
+                      <BlogPostCard contenido={post} autor={post?.users} />
                     </AnimationWrapper>
                   );
                 })}

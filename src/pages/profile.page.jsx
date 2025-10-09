@@ -72,7 +72,7 @@ const ProfilePage = () => {
         userProfile ?
           (  <section className="h-cover md:flex flex-row-reverse items-start gap-5 min-[1100px]:gap-12">
               <div className="flex flex-col max-md:items-center gap-5 min-w-[250px] md:w-[40%] md:pl-8 md:border-1 border-grey md:sticky md:top-[100px] md:py-10" >
-                <img src={userProfile.avatar_url?.replace(/;/g, "")} className="w-48 h-48 bg-grey rounded-full md:w-32 md:h-32"/>
+                <img src={userProfile?.avatar_url} className="w-48 h-48 bg-grey rounded-full md:w-32 md:h-32"/>
 
                 <h1 className="text-2xl font-medium">@{userProfile.user_name}</h1>
 

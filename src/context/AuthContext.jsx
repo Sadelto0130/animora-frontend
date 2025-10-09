@@ -4,7 +4,7 @@ import { array, set } from 'zod'
 import Cookie from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
 import Loader from '../components/ui/Loader'
-import { getProfileByUserName, login, logout, userLoginGoogle, userRegisterGoogle } from '../api/users.api'
+import { changePassword, getProfileByUserName, login, logout, userLoginGoogle, userRegisterGoogle } from '../api/users.api'
 
 export const AuthContext = createContext()
 
@@ -126,6 +126,19 @@ export function AuthProvider({ children}) {
     }
   };
 
+  const passwordChange = async(newPassword, currentPassword, id) => {
+    try {
+      const res = await changePassword(newPassword, currentPassword, id)
+      return res.data
+    } catch (error) {
+      if (Array.isArray(error.response?.data)) {
+        throw new Error(error.response.data.join(", "));
+      } else {
+        throw new Error(error.response?.data?.message || "Error desconocido");
+      }
+    }
+  }
+
   const clearRegisterErrors = () => setErrors(null)
 
   useEffect(() => {
@@ -176,7 +189,8 @@ export function AuthProvider({ children}) {
         logoutUser, 
         google_login,
         google_register,
-        getUserByUserName
+        getUserByUserName,
+        passwordChange
       }}>
       {children}
     </AuthContext.Provider>

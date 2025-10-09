@@ -6,7 +6,7 @@ const UserCard = ({users}) => {
 
   return (
     <Link to={`/user_profile/${user_name}`} className="flex gap-5 items-center mb-8">
-      <img src={avatar_url?.replace(/;/g, "")} className="w-14 h-14 rounded-full"/>
+      <img src={users?.avatar_url} className="w-14 h-14 rounded-full"/>
 
       <div>
         <h1 className="font-medium text-xl line-clamp-2">{name} {last_name}</h1>

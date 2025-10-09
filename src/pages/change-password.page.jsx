@@ -1,13 +1,50 @@
 import { useRef } from "react"
 import AnimationWrapper from "../common/page-animation"
 import InputBox from "../components/ui/InputBox"
-import { Toaster } from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast"
+import { validarPassword } from "../libs/utils"
+import { useAuth } from "../context/AuthContext"
 
 const ChangePassword = () => {
+  const { passwordChange, errors, user: {id} } = useAuth()
   let changePasswordForm = useRef()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
+
+    let form = new FormData(changePasswordForm.current)
+    let formData = { }
+
+    for(let [key, value] of form.entries()) {
+      formData[key] = value
+    }
+
+    let {currentPassword, newPassword} = formData
+
+    if (!currentPassword?.length || !newPassword?.length) {
+      return toast.error("Campos Vacíos")
+    }
+
+    const passValidate = validarPassword(newPassword)
+    if( !passValidate.valido) {
+      return toast.error(passValidate.mensaje)
+    }
+
+    e.target.setAttribute("disabled", true)
+    let loadingToast = toast.loading("Actualizando...")
+    try {
+      const updatePass = await passwordChange(newPassword, currentPassword, id)
+      toast.dismiss(loadingToast)
+      e.target.removeAttribute("disabled")
+      toast.success("Contraseña Actualizada")
+      changePasswordForm.current.reset()
+    } catch (err) {
+      toast.dismiss(loadingToast)
+      e.target.removeAttribute("disabled")
+      console.log(err)
+      toast.error(err.message)
+    }
+
   }
 
   return (

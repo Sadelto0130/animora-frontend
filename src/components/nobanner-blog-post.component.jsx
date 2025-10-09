@@ -13,7 +13,7 @@ const MinimalBlogPost = ({ post, index}) => {
 
       <div>
         <div className="flex gap-2 items-center mb-7">
-          <img src={avatar_url !== null ? avatar_url.replace(/;/g, "") : ""} alt="" className="w-6 h-6 rounded-full" />
+          <img src={avatar_url !== null ? avatar_url : ""} alt="" className="w-6 h-6 rounded-full" />
           <p className='line-clamp-1'>{name} {last_name} @{user_name}</p>
           <p className="min-w-fit">{getDay(created_at)}</p>
         </div>

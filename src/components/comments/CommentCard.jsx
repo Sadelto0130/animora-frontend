@@ -60,7 +60,7 @@ const CommentCard = ({ comment, leftVal = 0, onNewReply, blogAutor }) => {
     <div className="w-full" style={{ paddingLeft: `${leftVal * 10}px` }}>
       <div className="my-5 p-6 rounded-md border border-grey">
         <div className="flex gap-3 items-center mb-3">
-          <img src={users?.avatar_url?.replace(/;/g, "")} className="w-6 h-6 rounded-full" />
+          <img src={users?.avatar_url} className="w-6 h-6 rounded-full" />
           <p className="line-clamp-1">{users?.name} {users?.last_name} @{users?.user_name}</p>
           <p className="min-w-fit">{getDay(created_at)}</p>
         </div>
