@@ -18,7 +18,7 @@ const BlogPostCard = ({ contenido, autor }) => {
     banner,
     slug, 
     post_id,
-  } = contenido;
+  } = contenido || {};
   let { name, last_name, avatar_url, user_name } = autor;
 
   let fullName = `${name} ${last_name}`;
@@ -26,10 +26,10 @@ const BlogPostCard = ({ contenido, autor }) => {
 
   useEffect(() => {
     if(!user) return;
-    if(liked_by[0]?.id === user?.id) {
+    if(Array.isArray(liked_by) && liked_by.some(l => l.id === user.id)) {
       setLiked(true)
     }
-  }, [liked])
+  }, [liked_by, user])
 
   return (
     <Link to={`/post/${slug}`} className="flex gap-8 items-center border-b border-[#a0a0a0] pb-5 mb-4">
@@ -47,13 +47,15 @@ const BlogPostCard = ({ contenido, autor }) => {
 
         <h1 className="blog-title">{title}</h1>
         <p className="my-3 text-xl font-gelasio leading-7 max-sm:hidden md:max-[110px]:hidden line-clamp-2">
-          {content.length > 1
-            ? content[0].data.text
-            : "No hay contenido para mostrar"}
+          {Array.isArray(content) && content.length > 0
+    ? content[0]?.data?.text
+    : `Sin contenido para "${title}"`}
         </p>
 
         <div className="flex gap-4 mt-7">
-          <span className="btn-light py-1 px-4">{tags[0]}</span>
+          {Array.isArray(tags) && tags.length > 0 && (
+            <span className="btn-light py-1 px-4">{tags[0]}</span>
+          )}
           <span className="ml-3 flex items-center gap-2 text-dark-grey">
             <i className={"fi " + (liked ? "fi-sr-heart text-red" : "fi-rr-heart ")}></i>
             {likeCount}

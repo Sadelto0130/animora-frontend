@@ -11,3 +11,5 @@ export const userRegisterGoogle = (google_token) => client.post("/google_registe
 export const getProfileByUserName = (user_name) => client.get(`/profile/${user_name}`); 
 
 export const changePassword = (newPassword, currentPassword, id) => client.put(`/pass_change`, {newPassword, currentPassword, id})
+
+export const profileUpdateImg = (imgUrl, id_user) => client.put(`/profile_img`, {imgUrl, id_user})

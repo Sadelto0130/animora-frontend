@@ -4,7 +4,8 @@ import { array, set } from 'zod'
 import Cookie from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
 import Loader from '../components/ui/Loader'
-import { changePassword, getProfileByUserName, login, logout, userLoginGoogle, userRegisterGoogle } from '../api/users.api'
+import { changePassword, getProfileByUserName, login, logout, profileUpdateImg, userLoginGoogle, userRegisterGoogle } from '../api/users.api'
+import { useSocket } from './SocketContext'
 
 export const AuthContext = createContext()
 
@@ -17,6 +18,7 @@ export const useAuth = () => {
 }
 
 export function AuthProvider({ children}) {
+  const socket = useSocket()
   const [user, setUser] = useState(null);
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -139,6 +141,25 @@ export function AuthProvider({ children}) {
     }
   }
 
+  const updateProfileImg = async(imgUrl, id_user) => {
+    try {
+      const {data} = await profileUpdateImg(imgUrl, id_user)
+      setUser(prev => {
+      if (!prev) return prev;
+      return { ...prev, avatar_url: data.avatar_url };
+    });
+
+      return data
+    } catch (error) {
+      if (Array.isArray(error.response?.data)) {
+        throw new Error(error.response.data.join(", "));
+      } else {
+        throw new Error(error.response?.data?.message || "Error desconocido");
+      }
+    }
+  }
+
+
   const clearRegisterErrors = () => setErrors(null)
 
   useEffect(() => {
@@ -174,6 +195,26 @@ export function AuthProvider({ children}) {
     checkAuth();
   }, [])
 
+  useEffect(() => {
+    if(!socket) return
+
+    const handleUpdateProfileImg = (data) => {
+    // Solo actualizar si el ID coincide con el del usuario logueado
+    setUser(prev => {
+      if (!prev) return prev;
+      if (prev.id === data.id) {
+        return { ...prev, avatar_url: data.avatar_url };
+      }
+      return prev;
+    });
+  };
+
+    socket.on("update-img-profile", handleUpdateProfileImg);
+    return () => {
+      socket.off("update-img-profile", handleUpdateProfileImg);
+    };
+  }, [socket])
+
   if (loading) return <Loader />;
   
   return (
@@ -190,7 +231,8 @@ export function AuthProvider({ children}) {
         google_login,
         google_register,
         getUserByUserName,
-        passwordChange
+        passwordChange,
+        updateProfileImg
       }}>
       {children}
     </AuthContext.Provider>

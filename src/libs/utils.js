@@ -48,3 +48,20 @@ export const validarPassword = (password) => {
   return { valido: true, mensaje: "Contraseña válida" };
 }
 
+
+export const validarUsuario = (usuario) => {
+  if (!usuario) {
+    return { valido: false, mensaje: "El usuario no puede estar en blanco" };
+  }
+
+  // Evitar caracteres especiales
+  if (/[^a-zA-Z0-9]/.test(usuario)) {
+    return { valido: false, mensaje: "El usuario no debe contener caracteres especiales" };
+  }
+
+  if (usuario.length < 4 && usuario.length > 10) {
+    return { valido: false, mensaje: "El usuario debe tener al menos 4 caracteres" };
+  }
+
+  return { valido: true, mensaje: "usuario válida" };
+}

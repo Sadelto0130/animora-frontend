@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CiUser } from "react-icons/ci";
 
-const InputBox = ({name, type, id, value, placeholder, icon, register, rules, error}) => {
+const InputBox = ({name, type, id, value, placeholder, icon, register, rules, error, disabled = false}) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   return (
@@ -9,7 +9,9 @@ const InputBox = ({name, type, id, value, placeholder, icon, register, rules, er
       <input 
         name={name}
         id={id}
+        disabled={disabled}
         placeholder={ error ? error.message : placeholder}
+        defaultValue={value}
         type={type == "password" ? passwordVisible ? "text" : "password" : type}
         className={`input-box ${error ? "border-red placeholder-red" : ""}`}
         {...(register ? register(name, rules) : {})}

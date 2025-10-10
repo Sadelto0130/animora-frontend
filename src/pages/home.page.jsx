@@ -140,7 +140,7 @@ function HomePage() {
             {trendingPosts === null ? (
               <Loader />
             ) : (
-              trendingPosts.map((post, i) => {
+              trendingPosts?.map((post, i) => {
                 return (
                   <AnimationWrapper
                     transition={{ duration: 1, delay: i * 0.1 }}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { CiSearch } from "react-icons/ci";
@@ -7,6 +7,7 @@ import { MdOutlinePets } from "react-icons/md";
 import logo from "../../imgs/logo.png";
 import { useAuth } from "../../context/AuthContext";
 import UserNavigationPanel from "./user-navigation.component";
+import { useSocket } from "../../context/SocketContext";
 
 const Navbar = () => {
   const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
@@ -15,6 +16,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const { user, isAuth } = useAuth();
+  const socket = useSocket()
 
   const handleUserNavPanel = () => {
     setUserNavPanel((currentVal) => !currentVal);
@@ -34,6 +36,7 @@ const Navbar = () => {
       setUserNavPanel(false);
     }, 200);
   };
+
 
   return (
     <>
@@ -97,8 +100,8 @@ const Navbar = () => {
               >
                 <button className="w-12 h-12 mt-1">
                   <img
-                    src={user.avatar_url.replace(/;/g, "")}
-                    alt={user.name}
+                    src={`${user?.avatar_url?.replace(/;/g, "")}?v=${Date.now()}`}
+                    alt={user?.name}
                     className="w-full h-full object-cover rounded-full border border-black"
                   />
                 </button>

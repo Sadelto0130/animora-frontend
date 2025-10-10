@@ -35,7 +35,7 @@ const UserAuthForm = ({ type }) => {
     try {
       if (type === "register") {
         const passwordValidate = validarPassword(password)
-        if(!passwordValidate.valido) 
+        if(!passwordValidate.valido) return toast.error(passwordValidate.mensaje)
         await registerUser(data);
       } else {
         await loginUser(data);

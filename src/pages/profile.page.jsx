@@ -86,7 +86,13 @@ const ProfilePage = () => {
                   ) }
                 </div>
 
-                <AboutUser className="max-md:hidden" bio={userProfile.bio} email={userProfile.email} create={userProfile.created_at}/>
+                <AboutUser 
+                  className="max-md:hidden" 
+                  bio={userProfile?.bio} 
+                  email={userProfile?.email} 
+                  create={userProfile?.created_at} 
+                  social_links={userProfile?.social_links}
+                />
               </div>
 
               <div className="max-md:mt-12 w-full">
@@ -133,7 +139,12 @@ const ProfilePage = () => {
                   }
                 </>
 
-                <AboutUser bio={userProfile.bio} email={userProfile.email} create={userProfile.created_at}/>
+                <AboutUser 
+                  bio={userProfile.bio} 
+                  email={userProfile.email} 
+                  create={userProfile.created_at}
+                  social_links={userProfile?.social_links || []}
+                />
 
               </InPageNavigation>
 
